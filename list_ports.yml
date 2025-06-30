@@ -1,0 +1,16 @@
+---
+- name: Listar interfaces do switch Cisco
+  hosts: all
+  gather_facts: no
+  connection: network_cli
+
+  tasks:
+    - name: Executar "show ip interface brief" para listar portas
+      cisco.ios.ios_command:
+        commands:
+          - show ip interface brief
+      register: result
+
+    - name: Exibir apenas as linhas relevantes com porta e status
+      debug:
+        msg: "{{ result.stdout[0] | select('match', '^[A-Za-z]') | list }}"
