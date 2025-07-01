@@ -1,0 +1,16 @@
+---
+- name: Testar conexao com o Switch usando o modulo PING
+  hosts: all
+  gather_facts: false
+
+  # Variaveis de Conexao - Todas sao necessarias para o login SSH
+  vars:
+    ansible_connection: ansible.netcommon.network_cli
+    ansible_network_os: cisco.ios.ios
+    ansible_become: yes
+    ansible_become_method: enable
+    ansible_ssh_common_args: '-o KexAlgorithms=+diffie-hellman-group14-sha1 -o HostKeyAlgorithms=+ssh-rsa -o Ciphers=+aes128-cbc'
+
+  tasks:
+    - name: "Executar o ping do Ansible para o dispositivo Cisco IOS"
+      cisco.ios.ios_ping:
