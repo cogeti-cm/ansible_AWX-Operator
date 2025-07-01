@@ -14,3 +14,4 @@
   tasks:
     - name: "Executar o ping do Ansible para o dispositivo Cisco IOS"
       cisco.ios.ios_ping:
+        dest: "{{ inventory_hostname }}" # <<< ADICIONE ESTA LINHA
