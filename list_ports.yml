@@ -1,6 +1,6 @@
 ---
 - name: Coletar Informações das Portas do Switch
-  hosts: Switches # Usaremos um grupo de inventário chamado 'switches'
+  hosts: all # Usaremos um grupo de inventário chamado 'switches'
   gather_facts: no # Essencial para dispositivos de rede
   connection: ansible.netcommon.network_cli # Usa a conexão apropriada para rede
 
