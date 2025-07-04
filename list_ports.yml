@@ -1,16 +1,29 @@
 ---
-- name: Listar interfaces do switch Cisco
-  hosts: all
-  gather_facts: no
-  connection: network_cli
+- name: Coletar Informações das Portas do Switch
+  hosts: Switches # Usaremos um grupo de inventário chamado 'switches'
+  gather_facts: no # Essencial para dispositivos de rede
+  connection: ansible.netcommon.network_cli # Usa a conexão apropriada para rede
 
   tasks:
-    - name: Executar "show ip interface brief" para listar portas
+    - name: 1. Coletar fatos das interfaces (Método Estruturado)
+      cisco.ios.ios_facts:
+        gather_subset:
+          - interfaces
+      register: switch_facts
+
+    - name: 2. Exibir status das interfaces coletadas
+      ansible.builtin.debug:
+        msg: "Interface: {{ item.key }}, Status: {{ item.value.oper_status }}, Descrição: {{ item.value.description | default('N/A') }}"
+      loop: "{{ switch_facts.ansible_facts.net_interfaces | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+
+    - name: 3. Executar 'show ip interface brief' (Método de Comando Bruto)
       cisco.ios.ios_command:
         commands:
           - show ip interface brief
-      register: result
+      register: sh_ip_int_brief
 
-    - name: Exibir apenas as linhas relevantes com porta e status
-      debug:
-        msg: "{{ result.stdout[0] | select('match', '^[A-Za-z]') | list }}"
+    - name: 4. Exibir saída do comando 'show ip interface brief'
+      ansible.builtin.debug:
+        var: sh_ip_int_brief.stdout_lines
