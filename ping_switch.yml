@@ -1,6 +1,6 @@
 ---
 - name: Testar conectividade do AWX com a Internet
-  hosts: localhost
+  hosts: all
   connection: local # Executa no próprio Execution Environment
   gather_facts: no
 
