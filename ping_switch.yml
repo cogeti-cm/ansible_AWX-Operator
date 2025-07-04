@@ -1,29 +1,5 @@
 ---
-- name: Testar Conectividade (Ping) para Switches
-  hosts: all  # O grupo de hosts do seu inventário
-  gather_facts: no # Não precisamos coletar fatos do host remoto
-  
-  # Esta é a parte mais importante!
-  # Força a execução de todas as tarefas nesta "play" a partir da máquina local 
-  # (o runner do AWX), em vez de tentar conectar ao switch.
-  connection: local
-
+- hosts: all
+  gather_facts: false
   tasks:
-    - name: "Executa o comando ping para o IP do switch: {{ inventory_hostname }}"
-      ansible.builtin.command: "ping -c 4 {{ inventory_hostname }}"
-      
-      # Registra o resultado (saída, erro, código de retorno) em uma variável
-      register: ping_result
-      
-      # Continua a execução mesmo que o ping falhe (código de retorno diferente de 0)
-      ignore_errors: true
-
-    - name: "SUCESSO: O switch está respondendo"
-      ansible.builtin.debug:
-        msg: "O switch {{ inventory_hostname }} está respondendo ao ping."
-      when: ping_result.rc == 0 # 'rc' é o código de retorno. 0 significa sucesso.
-
-    - name: "FALHA: O switch NÃO está respondendo"
-      ansible.builtin.debug:
-        msg: "FALHA: O switch {{ inventory_hostname }} NÃO está respondendo ao ping."
-      when: ping_result.rc != 0 # Qualquer código de retorno diferente de 0 indica falha.
+    - ping: 8.8.8.8
