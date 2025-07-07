@@ -5,31 +5,24 @@
   connection: ansible.netcommon.network_cli
 
   tasks:
-    - name: 1. Coletar fatos das interfaces (Método Otimizado)
+    - name: 1. Coletar fatos das interfaces
       cisco.ios.ios_facts:
-        # Pede para NÃO coletar tudo e depois especifica para pegar APENAS as interfaces.
-        # Isso é mais rápido e eficiente.
         gather_subset:
           - "!all"
           - "interfaces"
       register: switch_facts
 
+    - name: 1.5. INSPECIONAR a variável completa (Adicione esta tarefa)
+      ansible.builtin.debug:
+        var: switch_facts
+
     - name: 2. Exibir status das interfaces coletadas
       ansible.builtin.debug:
-        # Mensagem melhorada para mostrar mais dados e usar 'default' para evitar erros
-        # se uma descrição ou um IP não existir.
         msg: >-
           Porta: {{ item.key }} |
           Status: {{ item.value.oper_status }} |
-          Protocolo: {{ item.value.lineprotocol }} |
-          Descrição: {{ item.value.description | default('N/A') }} |
-          IP: {{ (item.value.ipv4 | first).address | default('N/A') }}
-      loop: "{{ switch_facts.ansible_facts.net_interfaces | dict2items }}"
+          Descrição: {{ item.value.description | default('N/A') }}
+      # A linha abaixo está temporariamente desabilitada para o debug funcionar
+      # loop: "{{ switch_facts.ansible_facts.net_interfaces | dict2items }}"
       loop_control:
         label: "{{ item.key }}"
-
-    - name: 3. Executar 'show ip interface brief' (Método de Comando Bruto)
-      cisco.ios.ios_command:
-        commands:
-          - show ip interface brief
-      register: sh_ip_int_brief
