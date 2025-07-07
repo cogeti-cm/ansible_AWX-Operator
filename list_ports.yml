@@ -1,19 +1,29 @@
 ---
-- name: Coletar Informações das Portas do Switch
-  hosts: all # Usaremos um grupo de inventário chamado 'switches'
-  gather_facts: no # Essencial para dispositivos de rede
-  connection: ansible.netcommon.network_cli # Usa a conexão apropriada para rede
+- name: Coletar e Exibir Informações das Portas do Switch
+  hosts: all
+  gather_facts: no
+  connection: ansible.netcommon.network_cli
 
   tasks:
-    - name: 1. Coletar fatos das interfaces (Método Estruturado)
+    - name: 1. Coletar fatos das interfaces (Método Otimizado)
       cisco.ios.ios_facts:
+        # Pede para NÃO coletar tudo e depois especifica para pegar APENAS as interfaces.
+        # Isso é mais rápido e eficiente.
         gather_subset:
-          - interfaces
+          - "!all"
+          - "interfaces"
       register: switch_facts
 
     - name: 2. Exibir status das interfaces coletadas
       ansible.builtin.debug:
-        msg: "Interface: {{ item.key }}, Status: {{ item.value.oper_status }}, Descrição: {{ item.value.description | default('N/A') }}"
+        # Mensagem melhorada para mostrar mais dados e usar 'default' para evitar erros
+        # se uma descrição ou um IP não existir.
+        msg: >-
+          Porta: {{ item.key }} |
+          Status: {{ item.value.oper_status }} |
+          Protocolo: {{ item.value.lineprotocol }} |
+          Descrição: {{ item.value.description | default('N/A') }} |
+          IP: {{ (item.value.ipv4 | first).address | default('N/A') }}
       loop: "{{ switch_facts.ansible_facts.net_interfaces | dict2items }}"
       loop_control:
         label: "{{ item.key }}"
@@ -23,7 +33,3 @@
         commands:
           - show ip interface brief
       register: sh_ip_int_brief
-
-    - name: 4. Exibir saída do comando 'show ip interface brief'
-      ansible.builtin.debug:
-        var: sh_ip_int_brief.stdout_lines
