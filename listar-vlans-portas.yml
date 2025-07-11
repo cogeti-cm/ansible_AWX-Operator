@@ -12,19 +12,17 @@
       register: cisco_output
       failed_when: false
 
-    - name: Processar e exibir VLANs - Cisco
+    - name: Exibir saída bruta - Cisco
       ansible.builtin.debug:
         msg: |
           {{ inventory_hostname }}:
-          {% for line in cisco_output.stdout_lines if line | regex_search('^\\d+') %}
-            {% set parts = line.split() %}
-            {% set vlan = parts[0] %}
-            {% set ports = line.split(None, 3)[-1].split(', ') if line.split(None, 3)|length > 3 else [] %}
-            {% for port in ports %}
-              Porta: {{ port }} - VLAN: {{ vlan }}
-            {% endfor %}
+          {% for line in cisco_output.stdout_lines %}
+            {{ line }}
           {% endfor %}
-      when: "'CISCO' in group_names"
+      when: 
+        - "'CISCO' in group_names"
+        - cisco_output is defined
+        - cisco_output.stdout_lines is defined
 
     - name: Obter VLANs e interfaces - Switch HP
       ansible.netcommon.cli_command:
@@ -48,4 +46,7 @@
               {% endfor %}
             {% endif %}
           {% endfor %}
-      when: "'HP_A3600' in group_names"
+      when:
+        - "'HP_A3600' in group_names"
+        - hp_output is defined
+        - hp_output.stdout_lines is defined
