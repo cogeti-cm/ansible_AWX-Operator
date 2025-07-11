@@ -1,20 +1,34 @@
 ---
-- name: Mostrar VLANs por porta nos switches
+- name: Coletar e exibir resumo de interfaces IP
   hosts: all
-  gather_facts: no
+  gather_facts: no # Não precisamos de fatos para esta tarefa simples
 
   tasks:
-
-    - name: Obter VLANs e interfaces - Switch Cisco
+    - name: Obter resumo de interfaces IP - Cisco
       ansible.netcommon.cli_command:
-        command: show vlan brief
+        command: show ip interface brief
       when: "'CISCO' in group_names"
-      register: cisco_output
-      failed_when: false
+      register: cisco_ip_brief_output
+      ignore_errors: yes # Continua mesmo que o comando falhe em alguns dispositivos
 
-    - name: Obter VLANs e interfaces - Switch HP
+    - name: Obter resumo de interfaces IP - HP (tentativa)
       ansible.netcommon.cli_command:
-        command: display vlan
-      when: "'HP_A3600' in group_names"
-      register: hp_output
-      failed_when: false
+        command: display ip interface brief
+      when: "'HP_A3600' in group_names" # Adapte o grupo conforme seu inventário HP
+      register: hp_ip_brief_output
+      ignore_errors: yes # Continua mesmo que o comando falhe em alguns dispositivos HP
+
+    - name: Exibir saída de interfaces IP - Cisco
+      debug:
+        msg: "{{ inventory_hostname }}:\n{{ cisco_ip_brief_output.stdout[0] }}"
+      when: cisco_ip_brief_output is defined and cisco_ip_brief_output.stdout is defined and cisco_ip_brief_output.stdout | length > 0
+
+    - name: Exibir saída de interfaces IP - HP
+      debug:
+        msg: "{{ inventory_hostname }}:\n{{ hp_ip_brief_output.stdout[0] }}"
+      when: hp_ip_brief_output is defined and hp_ip_brief_output.stdout is defined and hp_ip_brief_output.stdout | length > 0
+
+    - name: Informar que o comando para HP pode ser diferente
+      debug:
+        msg: "Atenção: O comando 'display ip interface brief' pode não ser o correto para todos os dispositivos HP. Verifique a documentação do seu modelo específico."
+      when: "'HP_A3600' in group_names and hp_ip_brief_output is defined and hp_ip_brief_output.failed
