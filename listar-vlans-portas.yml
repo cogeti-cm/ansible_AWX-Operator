@@ -1,17 +1,7 @@
-- name: Mostrar VLANs de Cisco e HP
+- name: Playbook para Switch Cisco
   hosts: all
   gather_facts: no
-
   tasks:
-
-    - name: Coletar VLANs - Cisco
-      when: ansible_network_os == 'ios'
-      ios_command:
-        commands:
-          - show vlan brief
-      register: cisco_vlans
-
-    - name: Mostrar VLANs Cisco
-      when: ansible_network_os == 'ios'
-      debug:
-        msg: "{{ cisco_vlans.stdout[0] }}"
+    - name: Verificar a versão do sistema
+      cisco.ios.ios_command:
+        commands: show version
