@@ -1,0 +1,41 @@
+---
+- name: Mostrar VLANs por porta nos switches
+  hosts: all
+  gather_facts: no
+
+  tasks:
+
+    - name: Obter VLANs e interfaces - Switch Cisco
+      ios_command:
+        commands:
+          - show vlan brief
+          - show interfaces switchport
+      register: cisco_output
+      when: "'CISCO' in group_names"
+
+    - name: Exibir VLANs e portas - Cisco
+      debug:
+        msg: |
+          {{ inventory_hostname }}:
+          {% for line in cisco_output.stdout[0].split('\n') %}
+          {{ line }}
+          {% endfor %}
+          ---
+          {% for line in cisco_output.stdout[1].split('\n') %}
+          {{ line }}
+          {% endfor %}
+      when: "'CISCO' in group_names"
+
+    - name: Obter VLANs - Switch HP Comware
+      raw: display vlan
+      register: hp_output
+      when: "'HP_A3600' in group_names"
+
+    - name: Exibir VLANs e interfaces - HP
+      debug:
+        msg: |
+          {{ inventory_hostname }}:
+          {% for line in hp_output.stdout_lines %}
+          {{ line }}
+          {% endfor %}
+      when: "'HP_A3600' in group_names"
