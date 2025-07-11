@@ -20,9 +20,9 @@
       raw: display vlan
       register: resultado_hp
       ignore_errors: yes
-      when: "'HP' in group_names"
+      when: "'HP A3600' in group_names"
 
     - name: Exibir resultado do HP
       debug:
         var: resultado_hp.stdout_lines
-      when: "'HP' in group_names"
+      when: "'HP A3600' in group_names"
