@@ -10,24 +10,11 @@
         command: show vlan brief
       when: "'CISCO' in group_names"
       register: cisco_output
-
     - name: Processar e exibir VLANs - Cisco
-      vars:
-        vlan_lines: "{{ cisco_output.stdout_lines | select('match', '^\\d+') | list }}"
-        porta_vlan_cisco: >-
-          {{
-            vlan_lines | map('regex_findall', '^(\\d+)\\s+[^\\s]+\\s+[^\\s]+\\s+(.*)') |
-            map('first') |
-            map('last') |
-            zip(vlan_lines | map('regex_findall', '^(\\d+)') | map('first')) |
-            map('flatten') |
-            map('regex_replace', '^(.*),\\s*', '\\1') |
-            list
-          }}
       debug:
         msg: >-
-          {{ inventory_hostname }}:\n
-          {% for line in vlan_lines %}
+          {{ inventory_hostname }}:
+          {% for line in cisco_output.stdout_lines if line | regex_search('^\\d+') %}
             {% set parts = line.split() %}
             {% set vlan = parts[0] %}
             {% set ports = line.split(None, 3)[-1].split(', ') if line.split(None, 3)|length > 3 else [] %}
@@ -37,26 +24,16 @@ Porta: {{ port }} - VLAN: {{ vlan }}
           {% endfor %}
       when: "'CISCO' in group_names"
 
-    - name: Obter VLANs - Switch HP Comware
-      raw: display vlan
-      when: "'HP_A3600' in group_names"
-      register: hp_output
-      failed_when: false
-
     - name: Exibir VLANs por porta - HP
-      vars:
-        hp_vlan_lines: "{{ hp_output.stdout_lines | select('search', 'VLAN ID') | list }}"
-        vlan_lines: "{{ hp_output.stdout_lines }}"
       debug:
         msg: >-
-          {{ inventory_hostname }}:\n
+          {{ inventory_hostname }}:
           {% set current_vlan = '' %}
-          {% for line in vlan_lines %}
-            {% if line is search('VLAN ID:') %}
+          {% for line in hp_output.stdout_lines %}
+            {% if 'VLAN ID:' in line %}
               {% set current_vlan = (line | regex_search('VLAN ID: (\\d+)', '\\1')) %}
-            {% elif line is search('Port') %}
-              {% set port_line = line | regex_replace('Port: ', '') %}
-              {% set ports = port_line.split(',') %}
+            {% elif 'Port:' in line %}
+              {% set ports = (line | regex_replace('Port: ', '')).split(',') %}
               {% for port in ports %}
 Porta: {{ port | trim }} - VLAN: {{ current_vlan }}
               {% endfor %}
