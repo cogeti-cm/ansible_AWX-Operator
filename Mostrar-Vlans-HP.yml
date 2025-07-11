@@ -1,13 +1,12 @@
 ---
-- name: Mostrar VLANs com cli_command (HP Comware)
+- name: Mostrar VLANs no switch HP (via raw SSH)
   hosts: all
   gather_facts: no
   tasks:
-    - name: Executar "display vlan"
-      ansible.netcommon.cli_command:
-        command: display vlan
-      register: resultado
+    - name: Enviar comando 'display vlan'
+      ansible.builtin.raw: display vlan
+      register: saida
 
-    - name: Mostrar saída
+    - name: Mostrar resultado formatado
       debug:
-        var: resultado.stdout_lines
+        var: saida.stdout_lines
