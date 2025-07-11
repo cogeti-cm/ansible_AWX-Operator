@@ -6,30 +6,25 @@
   tasks:
 
     - name: Obter VLANs e interfaces - Switch Cisco
-      ios_command:
-        commands:
-          - show vlan brief
-          - show interfaces switchport
-      register: cisco_output
+      ansible.netcommon.cli_command:
+        command: show vlan brief
       when: "'CISCO' in group_names"
+      register: cisco_output
 
     - name: Exibir VLANs e portas - Cisco
       debug:
         msg: |
           {{ inventory_hostname }}:
-          {% for line in cisco_output.stdout[0].split('\n') %}
-          {{ line }}
-          {% endfor %}
-          ---
-          {% for line in cisco_output.stdout[1].split('\n') %}
+          {% for line in cisco_output.stdout_lines %}
           {{ line }}
           {% endfor %}
       when: "'CISCO' in group_names"
 
     - name: Obter VLANs - Switch HP Comware
       raw: display vlan
-      register: hp_output
       when: "'HP_A3600' in group_names"
+      register: hp_output
+      failed_when: false
 
     - name: Exibir VLANs e interfaces - HP
       debug:
