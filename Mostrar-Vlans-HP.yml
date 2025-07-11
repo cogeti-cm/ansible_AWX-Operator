@@ -1,12 +1,13 @@
 ---
-- name: Mostrar VLANs no switch HP (via raw SSH)
+- name: Mostrar VLANs no switch HP (via raw)
   hosts: all
   gather_facts: no
   tasks:
-    - name: Enviar comando 'display vlan'
-      ansible.builtin.raw: display vlan
-      register: saida
+    - name: Executar comando 'display vlan'
+      ansible.builtin.raw: "display vlan"
+      register: output
+      ignore_errors: yes  # <-- evita falha por código de retorno diferente de 0
 
-    - name: Mostrar resultado formatado
+    - name: Mostrar saída formatada
       debug:
-        var: saida.stdout_lines
+        var: output.stdout_lines
