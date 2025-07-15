@@ -1,73 +1,62 @@
+---
 - name: CRUD de VLAN para Cisco e HP 3600 via AWX
   hosts: all
   gather_facts: no
   vars:
     vlan_action: "{{ vlan_action | default('create') }}"
-    vlan_id: "{{ vlan_id | default('113') }}"
-    vlan_name: "{{ vlan_name | default('ansible_113') }}"
+    vlan_id: "{{ vlan_id | default('111') }}"
+    vlan_name: "{{ vlan_name | default('VLAN10') }}"
 
   tasks:
-
     # --- CISCO -----------------------
+    - name: Definir ansible_network_os para Cisco
+      set_fact:
+        ansible_network_os: cisco.ios.ios
+      when: "'CISCO' in group_names"
 
     - name: Criar VLAN no Cisco
+      cisco.ios.ios_config:
+        lines:
+          - "vlan {{ vlan_id }}"
+          - "name {{ vlan_name }}"
       when:
         - "'CISCO' in group_names"
         - vlan_action == 'create'
-      cisco.ios.ios_config:
-        lines:
-          - vlan {{ vlan_id }}
-          - name {{ vlan_name }}
-      vars:
-        ansible_network_os: cisco.ios.ios
 
     - name: Atualizar nome da VLAN no Cisco
+      cisco.ios.ios_config:
+        lines:
+          - "vlan {{ vlan_id }}"
+          - "name {{ vlan_name }}"
       when:
         - "'CISCO' in group_names"
         - vlan_action == 'update'
-      cisco.ios.ios_config:
-        lines:
-          - vlan {{ vlan_id }}
-          - name {{ vlan_name }}
-      vars:
-        ansible_network_os: cisco.ios.ios
 
     - name: Remover VLAN no Cisco
+      cisco.ios.ios_config:
+        lines:
+          - "no vlan {{ vlan_id }}"
       when:
         - "'CISCO' in group_names"
         - vlan_action == 'delete'
-      cisco.ios.ios_config:
-        lines:
-          - no vlan {{ vlan_id }}
-      vars:
-        ansible_network_os: cisco.ios.ios
 
-    # --- HP COMWARE ------------------
-    - name: Criar VLAN no HP 3600
-      when:
-        - "'HP_A3600' in group_names"
-        - vlan_action == 'create'
+    ---
+    # --- HP COMWARE (utilizando raw) ------------------
+    - name: Criar ou Atualizar VLAN no HP 3600 (via raw)
       ansible.builtin.raw: |
         system-view
         vlan {{ vlan_id }}
         name {{ vlan_name }}
-        return
-        
-    - name: Atualizar nome da VLAN no HP 3600
+        quit
       when:
         - "'HP_A3600' in group_names"
-        - vlan_action == 'update'
-      ansible.builtin.raw: |
-        system-view
-        vlan {{ vlan_id }}
-        name {{ vlan_name }}
-        return
+        - vlan_action == 'create' or vlan_action == 'update'
 
-    - name: Remover VLAN no HP 3600
-      when:
-        - "'HP_A3600' in group_names"
-        - vlan_action == 'delete'
+    - name: Remover VLAN no HP 3600 (via raw)
       ansible.builtin.raw: |
         system-view
         undo vlan {{ vlan_id }}
-        return
+        quit
+      when:
+        - "'HP_A3600' in group_names"
+        - vlan_action == 'delete'
