@@ -40,7 +40,6 @@
         - "'CISCO' in group_names"
         - vlan_action == 'delete'
 
-    ---
     # --- HP COMWARE (utilizando raw) ------------------
     - name: Criar ou Atualizar VLAN no HP 3600 (via raw)
       ansible.builtin.raw: |
