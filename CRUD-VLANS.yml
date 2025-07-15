@@ -53,6 +53,7 @@
         vlan {{ vlan_id }}
         name {{ vlan_name }}
         return
+      become: false
 
     - name: Atualizar nome da VLAN no HP 3600
       when:
