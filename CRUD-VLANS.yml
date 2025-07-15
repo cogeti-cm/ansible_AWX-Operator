@@ -1,0 +1,74 @@
+- name: CRUD de VLAN para Cisco e HP 3600 via AWX
+  hosts: all
+  gather_facts: no
+  vars:
+    vlan_action: "{{ vlan_action | default('create') }}"
+    vlan_id: "{{ vlan_id | default('10') }}"
+    vlan_name: "{{ vlan_name | default('VLAN10') }}"
+
+  tasks:
+
+    # --- CISCO -----------------------
+
+    - name: Criar VLAN no Cisco
+      when:
+        - "'cisco' in group_names"
+        - vlan_action == 'create'
+      cisco.ios.ios_config:
+        lines:
+          - vlan {{ vlan_id }}
+          - name {{ vlan_name }}
+      vars:
+        ansible_network_os: cisco.ios.ios
+
+    - name: Atualizar nome da VLAN no Cisco
+      when:
+        - "'cisco' in group_names"
+        - vlan_action == 'update'
+      cisco.ios.ios_config:
+        lines:
+          - vlan {{ vlan_id }}
+          - name {{ vlan_name }}
+      vars:
+        ansible_network_os: cisco.ios.ios
+
+    - name: Remover VLAN no Cisco
+      when:
+        - "'cisco' in group_names"
+        - vlan_action == 'delete'
+      cisco.ios.ios_config:
+        lines:
+          - no vlan {{ vlan_id }}
+      vars:
+        ansible_network_os: cisco.ios.ios
+
+    # --- HP COMWARE ------------------
+
+    - name: Criar VLAN no HP 3600
+      when:
+        - "'hp_3600' in group_names"
+        - vlan_action == 'create'
+      ansible.builtin.raw: |
+        system-view
+        vlan {{ vlan_id }}
+        name {{ vlan_name }}
+        return
+
+    - name: Atualizar nome da VLAN no HP 3600
+      when:
+        - "'hp_3600' in group_names"
+        - vlan_action == 'update'
+      ansible.builtin.raw: |
+        system-view
+        vlan {{ vlan_id }}
+        name {{ vlan_name }}
+        return
+
+    - name: Remover VLAN no HP 3600
+      when:
+        - "'hp_3600' in group_names"
+        - vlan_action == 'delete'
+      ansible.builtin.raw: |
+        system-view
+        undo vlan {{ vlan_id }}
+        return
