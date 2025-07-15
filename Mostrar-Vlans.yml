@@ -16,6 +16,34 @@
         var: resultado_cisco.stdout_lines
       when: "'CISCO' in group_names"
 
+    - name: Executar display vlan
+      ansible.builtin.raw: display vlan
+      register: resultado_vlans
+      when: "'HP_A3600' in group_names"
+
+    - name: Mostrar saída original (para debug)
+      debug:
+        var: resultado_vlans.stdout_lines
+      when: "'HP_A3600' in group_names"
+      
+    - name: Extrair VLANs existentes (ID e Nome)
+      set_fact:
+        vlans_existentes: >-
+          {{
+            resultado_vlans.stdout_lines
+            | select("match", "^\s*\d+\s+")
+            | map("regex_search", "^(?P<id>\d+)\s+(?P<name>\S+)")
+            | select("defined")
+            | map("extract", "id", "name")
+            | list
+          }}
+      when: "'HP_A3600' in group_names"
+      
+    - name: Mostrar VLANs extraídas
+      debug:
+        msg: "VLAN ID: {{ item.0 }}, Nome: {{ item.1 }}"
+      loop: "{{ vlans_existentes }}"
+
     - name: VLANs no switch HP
       raw: display vlan
       register: resultado_hp
