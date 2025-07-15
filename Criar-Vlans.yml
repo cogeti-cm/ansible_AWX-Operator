@@ -1,49 +1,35 @@
----
 - name: Criar VLANs em switches Cisco e HP
   hosts: all
-  gather_facts: no # Não precisamos de fatos para esta tarefa
-
+  gather_facts: no
   vars:
-    vlan_id: 100         # <--- DEFINA O ID DA VLAN AQUI
-    vlan_name: "Rede_Laboratorio" # <--- DEFINA O NOME DA VLAN AQUI
+    vlans:
+      - id: 10
+        name: VLAN10
+      - id: 20
+        name: VLAN20
 
   tasks:
-    - name: Criar VLAN em switches Cisco
-      # Usa o módulo 'ios_vlan' que é mais específico e seguro para Cisco IOS
-      cisco.ios.ios_vlan:
-        vlan_id: "{{ vlan_id }}"
-        name: "{{ vlan_name }}"
-        state: present # Garante que a VLAN exista
-      when: "'CISCO' in group_names"
 
-    - name: Criar VLAN em switches HP Comware
-      # Para HP Comware, usaremos o módulo 'cli_config' com comandos diretos
-      ansible.netcommon.cli_config:
-        config: |
-          vlan {{ vlan_id }}
-          name {{ vlan_name }}
-        # O 'parents' garante que estamos no contexto correto para o comando 'name'
-        # Em Comware, 'vlan <id>' já te leva para o contexto da VLAN
-      when: "'HP_A3600' in group_names"
+    - name: Configurar VLANs no switch Cisco
+      when: "'cisco' in group_names"
+      cisco.ios.ios_config:
+        lines: "{{ vlan_lines }}"
+      vars:
+        ansible_network_os: cisco.ios.ios
+        vlan_lines: >-
+          {% for vlan in vlans %}
+          vlan {{ vlan.id }}
+          name {{ vlan.name }}
+          {% endfor %}
 
-    - name: Verificar criação da VLAN (Cisco)
-      ansible.netcommon.cli_command:
-        command: show vlan brief | include {{ vlan_id }}
-      when: "'CISCO' in group_names"
-      register: cisco_vlan_check
-
-    - name: Exibir verificação da VLAN (Cisco)
-      debug:
-        msg: "Verificação da VLAN {{ vlan_id }} no Cisco {{ inventory_hostname }}:\n{{ cisco_vlan_check.stdout[0] }}"
-      when: cisco_vlan_check is defined and cisco_vlan_check.stdout is defined and cisco_vlan_check.stdout | length > 0
-
-    - name: Verificar criação da VLAN (HP)
-      ansible.netcommon.cli_command:
-        command: display vlan {{ vlan_id }}
-      when: "'HP_A3600' in group_names"
-      register: hp_vlan_check
-
-    - name: Exibir verificação da VLAN (HP)
-      debug:
-        msg: "Verificação da VLAN {{ vlan_id }} no HP {{ inventory_hostname }}:\n{{ hp_vlan_check.stdout[0] }}"
-      when: hp_vlan_check is defined and hp_vlan_check.stdout is defined and hp_vlan_check.stdout | length > 0
+    - name: Configurar VLANs no switch HP 3600
+      when: "'hp_3600' in group_names"
+      hpe.comware.comware_config:
+        lines: "{{ vlan_lines }}"
+      vars:
+        ansible_network_os: hpe.comware.comware
+        vlan_lines: >-
+          {% for vlan in vlans %}
+          vlan {{ vlan.id }}
+          name {{ vlan.name }}
+          {% endfor %}
