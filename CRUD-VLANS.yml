@@ -12,7 +12,7 @@
 
     - name: Criar VLAN no Cisco
       when:
-        - "'cisco' in group_names"
+        - "'CISCO' in group_names"
         - vlan_action == 'create'
       cisco.ios.ios_config:
         lines:
@@ -23,7 +23,7 @@
 
     - name: Atualizar nome da VLAN no Cisco
       when:
-        - "'cisco' in group_names"
+        - "'CISCO' in group_names"
         - vlan_action == 'update'
       cisco.ios.ios_config:
         lines:
@@ -34,7 +34,7 @@
 
     - name: Remover VLAN no Cisco
       when:
-        - "'cisco' in group_names"
+        - "'CISCO' in group_names"
         - vlan_action == 'delete'
       cisco.ios.ios_config:
         lines:
@@ -46,7 +46,7 @@
 
     - name: Criar VLAN no HP 3600
       when:
-        - "'hp_3600' in group_names"
+        - "'HP_3600' in group_names"
         - vlan_action == 'create'
       ansible.builtin.raw: |
         system-view
@@ -56,7 +56,7 @@
 
     - name: Atualizar nome da VLAN no HP 3600
       when:
-        - "'hp_3600' in group_names"
+        - "'HP_3600' in group_names"
         - vlan_action == 'update'
       ansible.builtin.raw: |
         system-view
@@ -66,7 +66,7 @@
 
     - name: Remover VLAN no HP 3600
       when:
-        - "'hp_3600' in group_names"
+        - "'HP_3600' in group_names"
         - vlan_action == 'delete'
       ansible.builtin.raw: |
         system-view
