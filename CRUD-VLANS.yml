@@ -42,12 +42,26 @@
     
         # --- HP COMWARE (utilizando raw) ------------------
         # Tente adicionar \n no final de cada linha para garantir que o Enter é pressionado
-    - name: Criar ou atualizar VLAN no HP 3600 com raw encadeado
-      ansible.builtin.raw: |
-        system-view
-        vlan {{ vlan_id }}
-        name {{ vlan_name }}
-        quit
+    - name: Entrar no system-view (modo de configuração)
+      ansible.builtin.raw: system-view
+      when:
+        - "'HP_A3600' in group_names"
+        - vlan_action in ['create', 'update']
+    
+    - name: Criar VLAN
+      ansible.builtin.raw: vlan {{ vlan_id }}
+      when:
+        - "'HP_A3600' in group_names"
+        - vlan_action in ['create', 'update']
+    
+    - name: Nomear VLAN
+      ansible.builtin.raw: name {{ vlan_name }}
+      when:
+        - "'HP_A3600' in group_names"
+        - vlan_action in ['create', 'update']
+    
+    - name: Sair do modo de configuração
+      ansible.builtin.raw: quit
       when:
         - "'HP_A3600' in group_names"
         - vlan_action in ['create', 'update']
