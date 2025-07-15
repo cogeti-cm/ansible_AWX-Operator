@@ -46,7 +46,7 @@
 
     - name: Criar VLAN no HP 3600
       when:
-        - "'HP_3600' in group_names"
+        - "'HP_A3600' in group_names"
         - vlan_action == 'create'
       ansible.builtin.raw: |
         system-view
@@ -56,7 +56,7 @@
 
     - name: Atualizar nome da VLAN no HP 3600
       when:
-        - "'HP_3600' in group_names"
+        - "'HP_A3600' in group_names"
         - vlan_action == 'update'
       ansible.builtin.raw: |
         system-view
@@ -66,7 +66,7 @@
 
     - name: Remover VLAN no HP 3600
       when:
-        - "'HP_3600' in group_names"
+        - "'HP_A3600' in group_names"
         - vlan_action == 'delete'
       ansible.builtin.raw: |
         system-view
