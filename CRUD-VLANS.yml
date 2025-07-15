@@ -3,8 +3,8 @@
   gather_facts: no
   vars:
     vlan_action: "{{ vlan_action | default('create') }}"
-    vlan_id: "{{ vlan_id | default('111') }}"
-    vlan_name: "{{ vlan_name | default('VLAN10') }}"
+    vlan_id: "{{ vlan_id | default('113') }}"
+    vlan_name: "{{ vlan_name | default('ansible_113') }}"
 
   tasks:
 
