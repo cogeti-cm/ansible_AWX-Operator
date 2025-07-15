@@ -1,0 +1,49 @@
+---
+- name: CRUD de VLAN no HP A3600 via Ansible AWX usando raw
+  hosts: all
+  gather_facts: no
+  vars:
+    vlan_action: "{{ vlan_action | default('create') }}"
+    vlan_id: "{{ vlan_id | default('111') }}"
+    vlan_name: "{{ vlan_name | default('VLAN10') }}"
+
+  tasks:
+
+    - name: Entrar no system-view (modo de configuração)
+      ansible.builtin.raw: system-view
+      register: result_system_view
+      failed_when: result_system_view.rc not in [0, -1]
+      when: vlan_action in ['create', 'update']
+
+    - name: Criar VLAN
+      ansible.builtin.raw: vlan {{ vlan_id }}
+      register: result_create_vlan
+      failed_when: result_create_vlan.rc not in [0, -1]
+      when: vlan_action in ['create', 'update']
+
+    - name: Nomear VLAN
+      ansible.builtin.raw: name {{ vlan_name }}
+      register: result_vlan_name
+      failed_when: result_vlan_name.rc not in [0, -1]
+      when: vlan_action in ['create', 'update']
+
+    - name: Sair do modo de configuração
+      ansible.builtin.raw: quit
+      register: result_quit
+      failed_when: result_quit.rc not in [0, -1]
+      when: vlan_action in ['create', 'update']
+
+    - name: Remover VLAN no HP A3600
+      ansible.builtin.raw: |
+        system-view
+        undo vlan {{ vlan_id }}
+        quit
+      register: result_delete_vlan
+      failed_when: result_delete_vlan.rc not in [0, -1]
+      when: vlan_action == 'delete'
+
+    - name: Verificar se a VLAN existe no HP 3600
+      ansible.builtin.raw: display vlan {{ vlan_id }}
+      register: vlan_check_hp
+      ignore_errors: true
+      failed_when: false
