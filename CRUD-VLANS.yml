@@ -40,22 +40,34 @@
         - "'CISCO' in group_names"
         - vlan_action == 'delete'
 
+    ---
     # --- HP COMWARE (utilizando raw) ------------------
+    # Tente adicionar \n no final de cada linha para garantir que o Enter é pressionado
     - name: Criar ou Atualizar VLAN no HP 3600 (via raw)
       ansible.builtin.raw: |
-        system-view
-        vlan {{ vlan_id }}
-        name {{ vlan_name }}
-        quit
+        system-view\n
+        vlan {{ vlan_id }}\n
+        name {{ vlan_name }}\n
+        quit\n
       when:
         - "'HP_A3600' in group_names"
         - vlan_action == 'create' or vlan_action == 'update'
 
     - name: Remover VLAN no HP 3600 (via raw)
       ansible.builtin.raw: |
-        system-view
-        undo vlan {{ vlan_id }}
-        quit
+        system-view\n
+        undo vlan {{ vlan_id }}\n
+        quit\n
       when:
         - "'HP_A3600' in group_names"
         - vlan_action == 'delete'
+
+    # Task para verificar a VLAN (se necessário) - útil para depuração
+    - name: Verificar se a VLAN existe no HP 3600
+      ansible.builtin.raw: |
+        display vlan {{ vlan_id }}
+      register: vlan_check_hp
+      ignore_errors: true # Para não falhar se a VLAN não existir ainda
+      when:
+        - "'HP_A3600' in group_names"
+      # Remova esta task após a depuração se não for necessária no job final
