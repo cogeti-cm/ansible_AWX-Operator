@@ -47,25 +47,28 @@
       when:
         - "'HP_A3600' in group_names"
         - vlan_action in ['create', 'update']
+      failed_when: result_create_vlan.rc not in [0, -1]
     
     - name: Criar VLAN
       ansible.builtin.raw: vlan {{ vlan_id }}
       when:
         - "'HP_A3600' in group_names"
         - vlan_action in ['create', 'update']
-    
+      failed_when: result_create_vlan.rc not in [0, -1]
+      
     - name: Nomear VLAN
       ansible.builtin.raw: name {{ vlan_name }}
       when:
         - "'HP_A3600' in group_names"
         - vlan_action in ['create', 'update']
-    
+      failed_when: result_create_vlan.rc not in [0, -1]
+      
     - name: Sair do modo de configuração
       ansible.builtin.raw: quit
       when:
         - "'HP_A3600' in group_names"
         - vlan_action in ['create', 'update']
-
+      failed_when: result_create_vlan.rc not in [0, -1]
     # Task para verificar a VLAN (se necessário) - útil para depuração
     - name: Verificar se a VLAN existe no HP 3600
       ansible.builtin.raw: |
