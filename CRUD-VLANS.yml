@@ -40,7 +40,6 @@
         - "'CISCO' in group_names"
         - vlan_action == 'delete'
 
-    ---
     # --- HP COMWARE (utilizando raw) ------------------
     # Tente adicionar \n no final de cada linha para garantir que o Enter é pressionado
     - name: Criar ou Atualizar VLAN no HP 3600 (via raw)
