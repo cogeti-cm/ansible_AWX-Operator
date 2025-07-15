@@ -3,7 +3,7 @@
   gather_facts: no
   vars:
     vlan_action: "{{ vlan_action | default('create') }}"
-    vlan_id: "{{ vlan_id | default('10') }}"
+    vlan_id: "{{ vlan_id | default('111') }}"
     vlan_name: "{{ vlan_name | default('VLAN10') }}"
 
   tasks:
@@ -43,18 +43,25 @@
         ansible_network_os: cisco.ios.ios
 
     # --- HP COMWARE ------------------
-
-    - name: Criar VLAN no HP 3600
-      when:
-        - "'HP_A3600' in group_names"
-        - vlan_action == 'create'
-      ansible.builtin.raw: |
-        system-view
-        vlan {{ vlan_id }}
-        name {{ vlan_name }}
-        return
-      become: false
-
+- name: Criar VLAN no HP 3600
+  when:
+    - "'HP_A3600' in group_names"
+    - vlan_action == 'create'
+  community.network.comware_config:
+    lines:
+      - vlan {{ vlan_id }}
+      - name {{ vlan_name }}
+      
+#    - name: Criar VLAN no HP 3600
+ #     when:
+  #      - "'HP_A3600' in group_names"
+   #     - vlan_action == 'create'
+    #  ansible.builtin.raw: |
+     #   system-view
+      #  vlan {{ vlan_id }}
+       # name {{ vlan_name }}
+        #return
+        
     - name: Atualizar nome da VLAN no HP 3600
       when:
         - "'HP_A3600' in group_names"
