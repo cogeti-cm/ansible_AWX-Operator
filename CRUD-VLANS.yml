@@ -43,14 +43,14 @@
         ansible_network_os: cisco.ios.ios
 
     # --- HP COMWARE ------------------
-- name: Criar VLAN no HP 3600
-  when:
-    - "'HP_A3600' in group_names"
-    - vlan_action == 'create'
-  community.network.comware_config:
-    lines:
-      - vlan {{ vlan_id }}
-      - name {{ vlan_name }}
+    - name: Criar VLAN no HP 3600
+      when:
+        - "'HP_A3600' in group_names"
+        - vlan_action == 'create'
+      community.network.comware_config:
+        lines:
+          - vlan {{ vlan_id }}
+          - name {{ vlan_name }}
       
 #    - name: Criar VLAN no HP 3600
  #     when:
