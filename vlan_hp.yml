@@ -9,28 +9,14 @@
 
   tasks:
 
-    - name: Entrar no system-view (modo de configuração)
-      ansible.builtin.raw: system-view
-      register: result_system_view
-      failed_when: result_system_view.rc not in [0, -1]
-      when: vlan_action in ['create', 'update']
-
-    - name: Criar VLAN
-      ansible.builtin.raw: vlan {{ vlan_id }}
-      register: result_create_vlan
-      failed_when: result_create_vlan.rc not in [0, -1]
-      when: vlan_action in ['create', 'update']
-
-    - name: Nomear VLAN
-      ansible.builtin.raw: name {{ vlan_name }}
-      register: result_vlan_name
-      failed_when: result_vlan_name.rc not in [0, -1]
-      when: vlan_action in ['create', 'update']
-
-    - name: Sair do modo de configuração
-      ansible.builtin.raw: quit
-      register: result_quit
-      failed_when: result_quit.rc not in [0, -1]
+    - name: Criar ou atualizar VLAN (tudo em uma única sessão)
+      ansible.builtin.raw: |
+        system-view
+        vlan {{ vlan_id }}
+        name {{ vlan_name }}
+        quit
+      register: result_vlan_create_update
+      failed_when: result_vlan_create_update.rc not in [0, -1]
       when: vlan_action in ['create', 'update']
 
     - name: Remover VLAN no HP A3600
