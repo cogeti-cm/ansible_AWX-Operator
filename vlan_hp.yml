@@ -12,6 +12,7 @@
     - name: Entrar no system-view (modo de configuração)
       ansible.builtin.raw: system-view
       register: result_system_view
+      failed_when: result_system_view.rc not in [0, -1]
       when: vlan_action in ['create', 'update']
 
     - name: Criar VLAN
