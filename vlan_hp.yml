@@ -3,9 +3,9 @@
   hosts: all
   gather_facts: no
   vars:
-    vlan_action: "{{ vlan_action | default('create') }}"
-    vlan_id: "{{ vlan_id | default('111') }}"
-    vlan_name: "{{ vlan_name | default('VLAN10') }}"
+    vlan_action: "{{ vlan_action }}"
+    vlan_id: "{{ vlan_id }}"
+    vlan_name: "{{ vlan_name }}"
 
   tasks:
     - name: VLANs no switch HP
