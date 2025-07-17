@@ -8,26 +8,6 @@
     vlan_name: "{{ vlan_name | default('VLAN10') }}"
 
   tasks:
-
-    - name: Criar ou atualizar VLAN (tudo em uma única sessão)
-      ansible.builtin.raw: |
-        system-view
-        vlan {{ vlan_id }}
-        name {{ vlan_name }}
-        quit
-      register: result_vlan_create_update
-      failed_when: result_vlan_create_update.rc not in [0, -1]
-      when: vlan_action in ['create', 'update']
-
-    - name: Remover VLAN no HP A3600
-      ansible.builtin.raw: |
-        system-view
-        undo vlan {{ vlan_id }}
-        quit
-      register: result_delete_vlan
-      failed_when: result_delete_vlan.rc not in [0, -1]
-      when: vlan_action == 'delete'
-
     - name: Verificar se a VLAN existe no HP 3600
       ansible.builtin.raw: display vlan {{ vlan_id }}
       register: vlan_check_hp
