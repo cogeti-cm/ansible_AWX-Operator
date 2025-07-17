@@ -9,6 +9,6 @@
 
   tasks:
     - name: Verificar se a VLAN existe no HP 3600
-      ansible.builtin.raw: display vlan {{ vlan_id }}
+      raw: display vlan {{ vlan_id }}
       register: vlan_check_hp
       ignore_errors: yes
