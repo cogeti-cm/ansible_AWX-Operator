@@ -8,7 +8,13 @@
     vlan_name: "{{ vlan_name | default('VLAN10') }}"
 
   tasks:
-    - name: Verificar se a VLAN existe no HP 3600
-      raw: display vlan {{ vlan_id }}
-      register: vlan_check_hp
+    - name: VLANs no switch HP
+      raw: display vlan
+      register: resultado_hp
       ignore_errors: yes
+      when: "'HP_A3600' in group_names"
+
+    - name: Exibir resultado do HP
+      debug:
+        var: resultado_hp.stdout_lines
+      when: "'HP_A3600' in group_names"
