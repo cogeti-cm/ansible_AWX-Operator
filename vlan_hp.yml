@@ -9,7 +9,7 @@
 
   tasks:
     - name: VLANs no switch HP
-      raw: display vlan
+      raw: display vlan {{ vlan_id }}
       register: resultado_hp
       ignore_errors: yes
       when: "'HP_A3600' in group_names"
