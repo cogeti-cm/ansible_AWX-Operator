@@ -10,9 +10,9 @@
   tasks:
     - name: VLANs no switch HP
       raw: |
-        system-view
-        vlan {{ vlan_id }}
-        name {{ vlan_name }}
+        system-view |
+        vlan {{ vlan_id }} |
+        name {{ vlan_name }} |
         quit
       register: resultado_hp
       ignore_errors: yes
