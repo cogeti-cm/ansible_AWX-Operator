@@ -2,7 +2,7 @@
 - name: Criar VLAN 114 no HP A3600 (Comware 5) usando comware_command
   hosts: all
   gather_facts: no
-  connection: network_cli
+  #connection: network_cli
   vars:
     vlan_id: 114
     vlan_name: ansible114
