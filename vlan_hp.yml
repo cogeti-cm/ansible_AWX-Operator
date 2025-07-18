@@ -1,22 +1,23 @@
-- name: Criar VLAN 114 no switch HP Comware 5 (A3600)
+---
+- name: Criar VLAN 114 no HP A3600 (Comware 5) usando comware_command
   hosts: all
   gather_facts: no
   connection: network_cli
   vars:
-    ansible_user: "{{ switch_user }}"
-    ansible_password: "{{ switch_password }}"
-    ansible_network_os: comware_5_2
-  tasks:
-    - name: Garantir que VLAN 114 existe com nome ansible114
-      comware_5_2_vlan:
-        host: "{{ ansible_host }}"
-        username: "{{ ansible_user }}"
-        password: "{{ ansible_password }}"
-        vlan_id: 114
-        name: ansible114
-        state: present
-      register: vlan_result
+    vlan_id: 114
+    vlan_name: ansible114
 
-    - name: Resultado da criação da VLAN
+  tasks:
+    - name: Criar VLAN e definir nome
+      h3c_open.comware.comware_command:
+        type: config
+        command:
+          - system-view
+          - vlan {{ vlan_id }}
+          - name {{ vlan_name }}
+          - quit
+      register: resultado
+
+    - name: Exibir resultado da criação da VLAN
       debug:
-        var: vlan_result
+        var: resultado.response
