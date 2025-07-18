@@ -1,25 +1,22 @@
----
-- name: CRUD de VLAN no HP A3600 via Ansible AWX usando raw
+- name: Criar VLAN 114 no switch HP Comware 5 (A3600)
   hosts: all
   gather_facts: no
+  connection: network_cli
   vars:
-    vlan_action: "{{ vlan_action }}"
-    vlan_id: "{{ vlan_id }}"
-    vlan_name: "{{ vlan_name }}"
-
+    ansible_user: "{{ switch_user }}"
+    ansible_password: "{{ switch_password }}"
+    ansible_network_os: comware_5_2
   tasks:
-    - name: VLANs no switch HP
+    - name: Garantir que VLAN 114 existe com nome ansible114
+      comware_5_2_vlan:
+        host: "{{ ansible_host }}"
+        username: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        vlan_id: 114
+        name: ansible114
+        state: present
+      register: vlan_result
 
-      ansible.builtin.raw: |
-        "system-view\n
-        vlan {{ vlan_id }}\n
-        name {{ vlan_name }}\n
-        quit\n"
-      register: resultado_hp
-      ignore_errors: yes
-      when: "'HP_A3600' in group_names"
-
-    - name: Exibir resultado do HP
+    - name: Resultado da criação da VLAN
       debug:
-        var: resultado_hp.stdout_lines
-      when: "'HP_A3600' in group_names"
+        var: vlan_result
