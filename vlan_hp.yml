@@ -9,9 +9,12 @@
 
   tasks:
     - name: VLANs no switch HP
-      community.network.comware_command:
-          commands:
-            - display vlan 114
+
+      ansible.builtin.raw: |
+        system-view\n
+        vlan {{ vlan_id }}\n
+        name {{ vlan_name }}\n
+        quit\n
       register: resultado_hp
       ignore_errors: yes
       when: "'HP_A3600' in group_names"
