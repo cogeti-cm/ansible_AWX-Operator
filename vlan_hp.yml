@@ -11,13 +11,13 @@
     - name: VLANs no switch HP
 
       ansible.builtin.raw: |
-        system-view
+        system-view\r
         
-        vlan {{ vlan_id }}
+        vlan {{ vlan_id }}\r
         
-        name {{ vlan_name }}
+        name {{ vlan_name }}\r
         
-        quit
+        quit\r
       register: resultado_hp
       ignore_errors: yes
       when: "'HP_A3600' in group_names"
