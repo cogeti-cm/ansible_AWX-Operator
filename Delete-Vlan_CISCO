@@ -1,0 +1,17 @@
+---
+- name: Deletar VLAN no grupo CISCO
+  hosts: CISCO
+  gather_facts: no
+  connection: ansible.netcommon.network_cli
+
+  tasks:
+    - name: Deletar atributos da VLAN especificada
+      cisco.ios.ios_vlans:
+        config:
+          - vlan_id: "{{ vlan_id | int }}"
+        state: deleted
+      register: vlan_delete
+
+    - name: Mostrar resultado da exclusão
+      debug:
+        var: vlan_delete
