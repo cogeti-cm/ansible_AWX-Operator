@@ -1,0 +1,20 @@
+---
+- name: Atualizar VLAN no grupo CISCO
+  hosts: CISCO
+  gather_facts: no
+  connection: ansible.netcommon.network_cli
+
+  tasks:
+    - name: Atualizar VLAN com nome e estado dinâmico
+      cisco.ios.ios_vlans:
+        config:
+          - vlan_id: "{{ vlan_id | int }}"
+            name: "{{ vlan_name }}"
+            state: "{{ vlan_state | default('active') }}"
+            shutdown: "{{ vlan_shutdown | default('disabled') }}"
+        state: merged
+      register: vlan_update
+
+    - name: Mostrar as mudanças aplicadas
+      debug:
+        var: vlan_update
