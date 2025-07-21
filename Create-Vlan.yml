@@ -1,24 +1,12 @@
----
-- name: Criar VLAN em switches do grupo Cisco
-  hosts: CISCO                    # Roda somente nos hosts que pertencem ao grupo 'cisco'
-  gather_facts: false             # Não precisamos coletar fatos sobre o switch para esta tarefa
-
-  # As variáveis 'vlan_id' e 'vlan_name' serão fornecidas via 'Extra Variables' no AWX.
-  # Podemos definir valores padrão aqui, mas o AWX irá sobrescrevê-los.
-  # vars:
-  #   vlan_id: 999                # Exemplo de valor padrão, será sobrescrito
-  #   vlan_name: "AWX_DEFAULT_VLAN" # Exemplo de valor padrão, será sobrescrito
-
+- name: Gerenciar VLAN no grupo CISCO
+  hosts: CISCO
+  gather_facts: no
+  connection: ansible.netcommon.network_cli
   tasks:
-    - name: Garantir que a VLAN {{ vlan_id }} com o nome {{ vlan_name }} exista
+    - name: Configurar VLAN com ID e nome dinâmicos
       cisco.ios.ios_vlans:
-        vlan_id: "{{ vlan_id }}"
-        name: "{{ vlan_name }}"
-        state: "present"
-        # Adiciona uma descrição básica. Você poderia até passar a descrição como outra variável extra!
-        description: "VLAN criada via AWX para ID {{ vlan_id }}"
-      register: vlan_creation_status
-
-    - name: Exibir o status da criação da VLAN
-      debug:
-        var: vlan_creation_status
+        config:
+          - vlan_id: "{{ vlan_id | int }}"
+            name: "{{ vlan_name }}"
+            state: active
+            shutdown: disabled
