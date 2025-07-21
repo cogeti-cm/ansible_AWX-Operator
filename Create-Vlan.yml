@@ -1,6 +1,6 @@
 ---
 - name: Criar VLAN em switches do grupo Cisco
-  hosts: cisco                    # Roda somente nos hosts que pertencem ao grupo 'cisco'
+  hosts: CISCO                    # Roda somente nos hosts que pertencem ao grupo 'cisco'
   gather_facts: false             # Não precisamos coletar fatos sobre o switch para esta tarefa
 
   # As variáveis 'vlan_id' e 'vlan_name' serão fornecidas via 'Extra Variables' no AWX.
