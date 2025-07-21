@@ -1,0 +1,20 @@
+---
+- name: Atualizar VLAN de porta no grupo CISCO
+  hosts: CISCO
+  gather_facts: no
+  connection: ansible.netcommon.network_cli
+
+  tasks:
+    - name: Alterar VLAN de interface como access port
+      cisco.ios.ios_l2_interfaces:
+        config:
+          - name: "{{ interface_name }}"
+            mode: access
+            access:
+              vlan: "{{ vlan_id | int }}"
+        state: merged
+      register: port_update
+
+    - name: Exibir resultado da alteração
+      debug:
+        var: port_update
