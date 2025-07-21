@@ -1,0 +1,16 @@
+---
+- name: Exibir VLANs existentes no grupo CISCO
+  hosts: CISCO
+  gather_facts: no
+  connection: ansible.netcommon.network_cli
+
+  tasks:
+    - name: Executar "show vlan"
+      cisco.ios.ios_command:
+        commands:
+          - show vlan
+      register: vlan_output
+
+    - name: Exibir resultado da VLAN
+      debug:
+        msg: "{{ vlan_output.stdout[0].split('\n') }}"
