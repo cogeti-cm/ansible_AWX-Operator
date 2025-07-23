@@ -1,4 +1,4 @@
-- hosts: all
+- hosts: HP_A3600
   connection: local
   gather_facts: no
   tasks:
