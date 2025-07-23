@@ -1,0 +1,21 @@
+- hosts: HP_A3600
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Atualizar VLAN da porta {{ porta }} para {{ vlan_id }}
+      cogeti_cm.comware5.comware5_commands:
+        host: "{{ ansible_host }}"
+        username: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        commands:
+          - system-view
+          - interface {{ porta }}
+          - port access vlan {{ vlan_id }}
+          - quit
+          - quit
+          - display vlan {{ vlan_id }}
+      register: resultado
+
+    - name: Exibir resultado
+      debug:
+        var: resultado.output
