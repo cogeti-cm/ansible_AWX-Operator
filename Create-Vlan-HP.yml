@@ -3,7 +3,7 @@
   gather_facts: no
   tasks:
     - name: Enviar comandos ao Comware 5 via Paramiko shell
-      comware5_command:
+      cogeti_cm.comware5.comware5_commands:
         host: "{{ ansible_host }}"
         username: "{{ ansible_user }}"
         password: "{{ ansible_password }}"
