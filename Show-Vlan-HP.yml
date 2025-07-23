@@ -1,0 +1,16 @@
+- hosts: HP_A3600
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Exibir informações da VLAN no Comware 5
+      cogeti_cm.comware5.comware5_commands:
+        host: "{{ ansible_host }}"
+        username: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        commands:
+          - display vlan {{ vlan_id }}
+      register: resultado
+
+    - name: Exibir saída do comando
+      debug:
+        var: resultado.output
