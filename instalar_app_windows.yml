@@ -1,0 +1,31 @@
+---
+- name: Instalar aplicativo no Windows
+  hosts: windows
+  gather_facts: no
+  collections:
+    - ansible.windows
+  vars:
+    url_instalador: "https://www.7-zip.org/a/7z1900-x64.exe"
+    nome_arquivo: "7z1900-x64.exe"
+    caminho_destino: "C:\\Temp\\{{ nome_arquivo }}"
+
+  tasks:
+    - name: Criar diretório temporário
+      ansible.windows.win_file:
+        path: "C:\\Temp"
+        state: directory
+
+    - name: Baixar instalador do aplicativo
+      ansible.windows.win_get_url:
+        url: "{{ url_instalador }}"
+        dest: "{{ caminho_destino }}"
+
+    - name: Instalar o aplicativo em modo silencioso
+      ansible.windows.win_command: "{{ caminho_destino }} /S"
+      args:
+        creates: "C:\\Program Files\\7-Zip\\7z.exe"
+
+    - name: Remover instalador após instalação
+      ansible.windows.win_file:
+        path: "{{ caminho_destino }}"
+        state: absent
