@@ -1,6 +1,6 @@
 ---
 - name: Instalar aplicativo no Windows
-  hosts: windows
+  hosts: all
   gather_facts: no
   collections:
     - ansible.windows
